@@ -1,11 +1,14 @@
 import { Routes, Route } from "react-router";
+import { Login } from "../pages/Login";
+import { Signup } from "../pages/Signup";
+import { Movies } from "../pages/Movies";
 
 export const MainRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<h1>Rota principal /</h1>} />
-      <Route path="/signup" element={<h1>Rota de cadastro</h1>} />
-      <Route path="/movies" element={<h1>Rota de filmes /</h1>} />
+      <Route path="/" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/movies" element={<Movies />} />
     </Routes>
   );
 };
