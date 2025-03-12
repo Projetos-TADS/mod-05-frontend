@@ -1,12 +1,16 @@
 import { useForm, SubmitHandler } from "react-hook-form";
+import { UserContext } from "../../providers/UserContext";
+import { useContext } from "react";
 
-interface ISignupFormData {
+export interface ISignupFormData {
   name: string;
   email: string;
   password: string;
 }
 
 export const SignupForm = () => {
+  const { userSignup } = useContext(UserContext);
+
   const {
     register,
     handleSubmit,
@@ -14,7 +18,7 @@ export const SignupForm = () => {
   } = useForm<ISignupFormData>();
 
   const submit: SubmitHandler<ISignupFormData> = (formData) => {
-    console.log(formData);
+    userSignup(formData);
   };
 
   return (

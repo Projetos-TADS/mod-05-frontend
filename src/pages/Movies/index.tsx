@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { api } from "../../services/api";
 import { Link } from "react-router";
+import { UserContext } from "../../providers/UserContext";
 
 export const MoviesPage = () => {
+  const { userLogout, user } = useContext(UserContext);
   const [movies, setMovies] = useState<{ movieId: string; title: string }[]>([]);
 
   useEffect(() => {
@@ -18,6 +20,10 @@ export const MoviesPage = () => {
 
   return (
     <main>
+      <header>
+        <span>{user?.name}</span>
+        <button onClick={() => userLogout()}>Logout</button>
+      </header>
       <section>
         <ul>
           {movies.length > 0 ? (
