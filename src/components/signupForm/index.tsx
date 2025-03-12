@@ -10,6 +10,7 @@ export interface ISignupFormData {
 
 export const SignupForm = () => {
   const { userSignup } = useContext(UserContext);
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -18,15 +19,22 @@ export const SignupForm = () => {
   } = useForm<ISignupFormData>();
 
   const submit: SubmitHandler<ISignupFormData> = (formData) => {
-    userSignup(formData);
+    userSignup(formData, setLoading);
   };
 
   return (
     <form onSubmit={handleSubmit(submit)}>
-      <input type="text" placeholder="Seu nome" {...register("name")} />
-      <input type="email" placeholder="Seu email" {...register("email")} />
-      <input type="password" placeholder="Seu password" {...register("password")} />
-      <button type="submit">Cadastrar</button>
+      <input type="text" placeholder="Seu nome" {...register("name")} disabled={loading} />
+      <input type="email" placeholder="Seu email" {...register("email")} disabled={loading} />
+      <input
+        type="password"
+        placeholder="Seu password"
+        {...register("password")}
+        disabled={loading}
+      />
+      <button type="submit" disabled={loading}>
+        {loading ? "Cadastrando..." : "Cadastrar"}
+      </button>
     </form>
   );
 };
