@@ -5,18 +5,18 @@ import { UserContext } from "../../providers/UserContext";
 
 export const MoviesPage = () => {
   const { userLogout, user } = useContext(UserContext);
-  const [movies, setMovies] = useState<{ movieId: string; title: string }[]>([]);
+  // const [movies, setMovies] = useState<{ movieId: string; title: string }[]>([]);
 
-  useEffect(() => {
-    async function getMovies() {
-      const response = await api.get("/movies");
+  // useEffect(() => {
+  //   async function getMovies() {
+  //     const response = await api.get("/movies");
 
-      setMovies(response.data.data);
-      console.log(response.data.data);
-    }
+  //     setMovies(response.data.data);
+  //     console.log(response.data.data);
+  //   }
 
-    getMovies();
-  }, []);
+  //   getMovies();
+  // }, []);
 
   return (
     <main>
@@ -24,7 +24,7 @@ export const MoviesPage = () => {
         <span>{user?.name}</span>
         <button onClick={() => userLogout()}>Logout</button>
       </header>
-      <section>
+      {/* <section>
         <ul>
           {movies.length > 0 ? (
             movies.map((movie) => (
@@ -36,7 +36,7 @@ export const MoviesPage = () => {
             <li>{movies.length === 0 ? "Loading movies..." : "No movies available"}</li>
           )}
         </ul>
-      </section>
+      </section> */}
     </main>
   );
 };
