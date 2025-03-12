@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { api } from "../../services/api";
 
-export const Info = () => {
+export const InfoPage = () => {
   const { movieId } = useParams();
   const [movie, setMovie] = useState<{ movieId: string; title: string }[]>([]);
 

@@ -1,16 +1,16 @@
 import { Routes, Route } from "react-router";
-import { Login } from "../pages/Login";
-import { Signup } from "../pages/Signup";
-import { Movies } from "../pages/Movies";
-import { Info } from "../pages/Info";
+import { LoginPage } from "../pages/Login";
+import { SignupPage } from "../pages/Signup";
+import { MoviesPage } from "../pages/Movies";
+import { InfoPage } from "../pages/Info";
 
 export const MainRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/movies" element={<Movies />} />
-      <Route path="/info/:movieId" element={<Info />} />
+      <Route path="/" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/movies" element={<MoviesPage />} />
+      <Route path="/info/:movieId" element={<InfoPage />} />
     </Routes>
   );
 };

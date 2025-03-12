@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "../../services/api";
 import { Link } from "react-router";
 
-export const Movies = () => {
+export const MoviesPage = () => {
   const [movies, setMovies] = useState<{ movieId: string; title: string }[]>([]);
 
   useEffect(() => {
