@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { UserContext } from "../../providers/UserContext";
 
@@ -9,6 +9,7 @@ export interface ILoginFormData {
 
 export const LoginForm = () => {
   const { userSignin } = useContext(UserContext);
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -17,14 +18,21 @@ export const LoginForm = () => {
   } = useForm<ILoginFormData>();
 
   const submit: SubmitHandler<ILoginFormData> = (formData) => {
-    userSignin(formData);
+    userSignin(formData, setLoading);
   };
 
   return (
     <form onSubmit={handleSubmit(submit)}>
-      <input type="email" placeholder="Seu email" {...register("email")} />
-      <input type="password" placeholder="Seu password" {...register("password")} />
-      <button>Entrar</button>
+      <input type="email" placeholder="Seu email" {...register("email")} disabled={loading} />
+      <input
+        type="password"
+        placeholder="Seu password"
+        {...register("password")}
+        disabled={loading}
+      />
+      <button type="submit" disabled={loading}>
+        {loading ? "Entrando..." : "Entrar"}
+      </button>
     </form>
   );
 };
