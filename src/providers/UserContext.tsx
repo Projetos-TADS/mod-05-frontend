@@ -1,7 +1,7 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { api } from "../services/api";
-import { ISignupFormData } from "../components/signupForm";
-import { ILoginFormData } from "../components/signinForm";
+import { ISignupFormData } from "../components/SignupForm";
+import { ILoginFormData } from "../components/SigninForm";
 import { useNavigate } from "react-router";
 
 interface IUserProviderProps {
@@ -17,8 +17,14 @@ interface IUser {
 
 interface IUserContext {
   user: IUser | null;
-  userSignin: (formData: ILoginFormData) => Promise<void>;
-  userSignup: (formData: ISignupFormData) => Promise<void>;
+  userSignin: (
+    formData: ILoginFormData,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>
+  ) => Promise<void>;
+  userSignup: (
+    formData: ISignupFormData,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>
+  ) => Promise<void>;
   userLogout: () => void;
   // isEditUserProfileModalOpen: boolean;
   // setIsEditUserProfileModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -37,28 +43,65 @@ export const UserProvider = ({ children }: IUserProviderProps) => {
   const [user, setUser] = useState<IUser | null>(null);
   const navigate = useNavigate();
 
-  const userSignin = async (formData: ILoginFormData) => {
+  useEffect(() => {
+    const userToken: string | null = localStorage.getItem("@USERTOKEN");
+    const userId: string | null = localStorage.getItem("@USERID");
+
+    const userAutoLogin = async () => {
+      try {
+        const { data } = await api.get<IUser>(`/users/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        });
+        setUser(data);
+        navigate("/movies");
+      } catch (error) {
+        console.log(error);
+        localStorage.removeItem("@USERTOKEN");
+        localStorage.removeItem("@USERID");
+      }
+    };
+
+    if (userToken && userId) userAutoLogin();
+  }, [navigate]);
+
+  const userSignin = async (
+    formData: ILoginFormData,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>
+  ) => {
     try {
+      setLoading(true);
       const { data } = await api.post<IUserSigninResponse>("/login", formData);
       localStorage.setItem("@USERTOKEN", data.token);
+      localStorage.setItem("@USERID", data.user.userId);
       setUser(data.user);
       navigate("/movies");
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const userSignup = async (formData: ISignupFormData) => {
+  const userSignup = async (
+    formData: ISignupFormData,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>
+  ) => {
     try {
+      setLoading(true);
       await api.post<IUser>("/users", formData);
       console.log("Cadastro feito");
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const userLogout = async () => {
     localStorage.removeItem("@USERTOKEN");
+    localStorage.removeItem("@USERID");
     setUser(null);
     navigate("/");
   };
