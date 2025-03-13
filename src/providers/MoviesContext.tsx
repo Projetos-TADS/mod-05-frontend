@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { api } from "../services/api";
+import { TCreateMovieFormValues } from "../components/CreateMovieForm/createMovieFormSchema";
 
 interface IMovieProviderProps {
   children: React.ReactNode;
@@ -60,6 +61,11 @@ interface IDirectorMovie {
 
 interface IMovieContext {
   moviesList: IMovie[] | null;
+  createNewMovie: (
+    formData: TCreateMovieFormValues,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>
+  ) => Promise<void>;
+  deleteMovie: (movieId: string) => Promise<void>;
 }
 
 export const MoviesContext = createContext({} as IMovieContext);
@@ -69,8 +75,14 @@ export const MoviesProvider = ({ children }: IMovieProviderProps) => {
 
   useEffect(() => {
     const moviesLoad = async () => {
+      const userToken: string | null = localStorage.getItem("@USERTOKEN");
+
       try {
-        const { data } = await api.get<IMovieResponse>("/movies");
+        const { data } = await api.get<IMovieResponse>("/movies", {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        });
         setMovieList(data.data);
       } catch (error) {
         console.log(error);
@@ -80,5 +92,56 @@ export const MoviesProvider = ({ children }: IMovieProviderProps) => {
     moviesLoad();
   }, []);
 
-  return <MoviesContext.Provider value={{ moviesList }}>{children}</MoviesContext.Provider>;
+  const createNewMovie = async (
+    formData: TCreateMovieFormValues,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>
+  ) => {
+    const userToken: string | null = localStorage.getItem("@USERTOKEN");
+    const convertedFormData = {
+      ...formData,
+      duration: Number(formData.duration),
+      rating: Number(formData.rating),
+      releaseYear: Number(formData.releaseYear),
+    };
+
+    try {
+      const { data } = await api.post<IMovie>("/movies", convertedFormData, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+      setMovieList([...moviesList, data]);
+      console.log("Cadastro de filme feito");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteMovie = async (movieId: string) => {
+    const userToken: string | null = localStorage.getItem("@USERTOKEN");
+
+    try {
+      await api.delete(`/movies/${movieId}`, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      const updatedMovieList = moviesList.filter(
+        (currentMovie) => currentMovie.movieId !== movieId
+      );
+      setMovieList(updatedMovieList);
+      console.log("Filmes deletado");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <MoviesContext.Provider value={{ moviesList, createNewMovie, deleteMovie }}>
+      {children}
+    </MoviesContext.Provider>
+  );
 };
