@@ -3,6 +3,7 @@ import { api } from "../services/api";
 import { useNavigate } from "react-router";
 import { TSignupFormValues } from "../components/SignupForm/signupFormSchema";
 import { TLoginFormValues } from "../components/SigninForm/loginFormSchema";
+import { TUserUpdateFormValues } from "../components/UserUpdateForm/userUpdateFormSchema";
 
 interface IUserProviderProps {
   children: React.ReactNode;
@@ -26,14 +27,11 @@ interface IUserContext {
     setLoading: React.Dispatch<React.SetStateAction<boolean>>
   ) => Promise<void>;
   userLogout: () => void;
-  userEdit: (
-    newUserData: unknown,
+  userUpdate: (
+    newUserData: TUserUpdateFormValues,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>
   ) => Promise<void>;
-  // isEditUserProfileModalOpen: boolean;
-  // setIsEditUserProfileModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  // editUserProfile: (newUserData: IRegisterUserFormData) => Promise<void>;
-  // setUser: React.Dispatch<React.SetStateAction<IUser | null>>;
+  userDelete: (userId: string) => Promise<void>;
 }
 
 interface IUserSigninResponse {
@@ -95,6 +93,7 @@ export const UserProvider = ({ children }: IUserProviderProps) => {
     try {
       setLoading(true);
       await api.post<IUser>("/users", formData);
+      navigate("/");
       console.log("Cadastro feito");
     } catch (error) {
       console.log(error);
@@ -110,8 +109,8 @@ export const UserProvider = ({ children }: IUserProviderProps) => {
     navigate("/");
   };
 
-  const userEdit = async (
-    newUserData: unknown,
+  const userUpdate = async (
+    newUserData: TUserUpdateFormValues,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>
   ) => {
     const userToken: string | null = localStorage.getItem("@USERTOKEN");
@@ -131,8 +130,29 @@ export const UserProvider = ({ children }: IUserProviderProps) => {
     }
   };
 
+  const userDelete = async (userId: string) => {
+    const userToken: string | null = localStorage.getItem("@USERTOKEN");
+
+    try {
+      await api.delete(`/users/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      localStorage.removeItem("@USERTOKEN");
+      localStorage.removeItem("@USERID");
+      navigate("/");
+      console.log("Usuário deletado");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
-    <UserContext.Provider value={{ userSignin, userSignup, userLogout, userEdit, user }}>
+    <UserContext.Provider
+      value={{ userSignin, userSignup, userLogout, userUpdate, userDelete, user }}
+    >
       {children}
     </UserContext.Provider>
   );
