@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import { api } from "../services/api";
-import { TCreateMovieFormValues } from "../components/CreateMovieForm/createMovieFormSchema";
+import { TMovieCreateFormValues } from "../components/MovieCreateForm/movieCreateFormSchema";
+import { TMovieUpdateFormValues } from "../components/MovieUpdateForm/movieupdateFormSchema";
 
 interface IMovieProviderProps {
   children: React.ReactNode;
@@ -13,7 +14,7 @@ interface IMovieResponse {
   data: IMovie[];
 }
 
-interface IMovie {
+export interface IMovie {
   movieId: string;
   title: string;
   description: string;
@@ -61,17 +62,21 @@ interface IDirectorMovie {
 
 interface IMovieContext {
   moviesList: IMovie[] | null;
-  createNewMovie: (
-    formData: TCreateMovieFormValues,
+  movieCreate: (
+    formData: TMovieCreateFormValues,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>
   ) => Promise<void>;
-  deleteMovie: (movieId: string) => Promise<void>;
+  movieDelete: (movieId: string) => Promise<void>;
+  movieUpdate: (newMovieData: TMovieUpdateFormValues, movieId: string) => Promise<void>;
+  setmodalMovieEdit: React.Dispatch<React.SetStateAction<boolean>>;
+  modalMovieEdit: boolean;
 }
 
 export const MoviesContext = createContext({} as IMovieContext);
 
 export const MoviesProvider = ({ children }: IMovieProviderProps) => {
   const [moviesList, setMovieList] = useState<IMovie[]>([]);
+  const [modalMovieEdit, setmodalMovieEdit] = useState<boolean>(false);
 
   useEffect(() => {
     const moviesLoad = async () => {
@@ -92,8 +97,8 @@ export const MoviesProvider = ({ children }: IMovieProviderProps) => {
     moviesLoad();
   }, []);
 
-  const createNewMovie = async (
-    formData: TCreateMovieFormValues,
+  const movieCreate = async (
+    formData: TMovieCreateFormValues,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>
   ) => {
     const userToken: string | null = localStorage.getItem("@USERTOKEN");
@@ -119,7 +124,30 @@ export const MoviesProvider = ({ children }: IMovieProviderProps) => {
     }
   };
 
-  const deleteMovie = async (movieId: string) => {
+  const movieUpdate = async (newMovieData: TMovieUpdateFormValues, movieId: string) => {
+    const userToken: string | null = localStorage.getItem("@USERTOKEN");
+
+    try {
+      // setLoading(true);
+
+      const { data } = await api.patch<IMovie>(`/movies/${movieId}`, newMovieData, {
+        headers: { Authorization: `Bearer ${userToken}` },
+      });
+
+      const updatedMovie = moviesList.filter((currentMovie) => currentMovie.movieId !== movieId);
+
+      setMovieList([...updatedMovie, data]);
+
+      console.log(data);
+      console.log("Movie Atualizado");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      // setLoading(false);
+    }
+  };
+
+  const movieDelete = async (movieId: string) => {
     const userToken: string | null = localStorage.getItem("@USERTOKEN");
 
     try {
@@ -140,7 +168,16 @@ export const MoviesProvider = ({ children }: IMovieProviderProps) => {
   };
 
   return (
-    <MoviesContext.Provider value={{ moviesList, createNewMovie, deleteMovie }}>
+    <MoviesContext.Provider
+      value={{
+        moviesList,
+        movieCreate,
+        movieDelete,
+        movieUpdate,
+        modalMovieEdit,
+        setmodalMovieEdit,
+      }}
+    >
       {children}
     </MoviesContext.Provider>
   );
