@@ -1,8 +1,8 @@
 import { createContext, useEffect, useState } from "react";
 import { api } from "../services/api";
-import { ISignupFormData } from "../components/SignupForm";
-import { ILoginFormData } from "../components/SigninForm";
 import { useNavigate } from "react-router";
+import { TSignupFormValues } from "../components/SignupForm/signupFormSchema";
+import { TLoginFormValues } from "../components/SigninForm/loginFormSchema";
 
 interface IUserProviderProps {
   children: React.ReactNode;
@@ -18,11 +18,11 @@ interface IUser {
 interface IUserContext {
   user: IUser | null;
   userSignin: (
-    formData: ILoginFormData,
+    formData: TLoginFormValues,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>
   ) => Promise<void>;
   userSignup: (
-    formData: ISignupFormData,
+    formData: TSignupFormValues,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>
   ) => Promise<void>;
   userLogout: () => void;
@@ -67,7 +67,7 @@ export const UserProvider = ({ children }: IUserProviderProps) => {
   }, [navigate]);
 
   const userSignin = async (
-    formData: ILoginFormData,
+    formData: TLoginFormValues,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>
   ) => {
     try {
@@ -85,7 +85,7 @@ export const UserProvider = ({ children }: IUserProviderProps) => {
   };
 
   const userSignup = async (
-    formData: ISignupFormData,
+    formData: TSignupFormValues,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>
   ) => {
     try {
