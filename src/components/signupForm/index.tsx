@@ -32,7 +32,7 @@ export const SignupForm = () => {
       />
       <Input
         type="email"
-        placeholder="Seu email"
+        placeholder="Seu e-mail"
         {...register("email")}
         disabled={loading}
         error={errors.email}
