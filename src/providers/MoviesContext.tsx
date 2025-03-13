@@ -59,33 +59,13 @@ interface IDirectorMovie {
 }
 
 interface IMovieContext {
-  //   user: IUser | null;
-  //   userSignin: (
-  //     formData: ILoginFormData,
-  //     setLoading: React.Dispatch<React.SetStateAction<boolean>>
-  //   ) => Promise<void>;
-  //   userSignup: (
-  //     formData: ISignupFormData,
-  //     setLoading: React.Dispatch<React.SetStateAction<boolean>>
-  //   ) => Promise<void>;
-  //   userLogout: () => void;
-  // isEditUserProfileModalOpen: boolean;
-  // setIsEditUserProfileModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  // editUserProfile: (newUserProfileData: IRegisterUserFormData) => Promise<void>;
-  // setUser: React.Dispatch<React.SetStateAction<IUser | null>>;
+  moviesList: IMovie[] | null;
 }
-
-// interface IUserSigninResponse {
-//   user: IUser;
-//   token: string;
-// }
 
 export const MoviesContext = createContext({} as IMovieContext);
 
 export const MoviesProvider = ({ children }: IMovieProviderProps) => {
-  const [movieList, setMovieList] = useState<IMovie[]>([]);
-
-  console.log(movieList);
+  const [moviesList, setMovieList] = useState<IMovie[]>([]);
 
   useEffect(() => {
     const moviesLoad = async () => {
@@ -100,5 +80,5 @@ export const MoviesProvider = ({ children }: IMovieProviderProps) => {
     moviesLoad();
   }, []);
 
-  return <MoviesContext.Provider value={{}}>{children}</MoviesContext.Provider>;
+  return <MoviesContext.Provider value={{ moviesList }}>{children}</MoviesContext.Provider>;
 };
