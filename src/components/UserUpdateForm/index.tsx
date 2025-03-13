@@ -3,36 +3,42 @@ import { UserContext } from "../../providers/UserContext";
 import { useContext, useState } from "react";
 import { Input } from "../Input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { TUserEditFormValues, userEditFormSchema } from "./userEditFormSchema";
+import { TUserUpdateFormValues, userUpdateSchema } from "./userUpdateFormSchema";
 
 export const UserEditForm = () => {
-  const { userEdit, user } = useContext(UserContext);
+  const { userUpdate, user } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<TUserEditFormValues>({
-    resolver: zodResolver(userEditFormSchema),
+  } = useForm<TUserUpdateFormValues>({
+    resolver: zodResolver(userUpdateSchema),
   });
 
-  const submit: SubmitHandler<TUserEditFormValues> = (newUserData) => {
-    userEdit(newUserData, setLoading);
+  const submit: SubmitHandler<TUserUpdateFormValues> = (newUserData) => {
+    const filteredData = Object.fromEntries(
+      Object.entries(newUserData).filter(
+        ([key, value]) => value !== undefined && value !== "" && key !== "confirmPassword"
+      )
+    );
+
+    if (Object.keys(filteredData).length > 0) userUpdate(filteredData, setLoading);
   };
 
   return (
     <form onSubmit={handleSubmit(submit)}>
       <Input
         type="text"
-        placeholder={user?.name?.toString()}
+        placeholder={user?.name || "Seu nome"}
         {...register("name")}
         disabled={loading}
         error={errors.name}
       />
       <Input
         type="email"
-        placeholder={user?.email?.toString()}
+        placeholder={user?.email || "Seu e-mail"}
         {...register("email")}
         disabled={loading}
         error={errors.email}

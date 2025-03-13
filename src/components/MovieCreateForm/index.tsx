@@ -1,24 +1,24 @@
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Input } from "../Input";
-import { createMovieFormSchema, TCreateMovieFormValues } from "./createMovieFormSchema";
+import { movieCreateFormSchema, TMovieCreateFormValues } from "./movieCreateFormSchema";
 import { useContext, useState } from "react";
 import { MoviesContext } from "../../providers/MoviesContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 export const CreateNewMovieForm = () => {
   const [loading, setLoading] = useState(false);
-  const { createNewMovie } = useContext(MoviesContext);
+  const { movieCreate } = useContext(MoviesContext);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<TCreateMovieFormValues>({
-    resolver: zodResolver(createMovieFormSchema),
+  } = useForm<TMovieCreateFormValues>({
+    resolver: zodResolver(movieCreateFormSchema),
   });
 
-  const submit: SubmitHandler<TCreateMovieFormValues> = (formData) => {
-    createNewMovie(formData, setLoading);
+  const submit: SubmitHandler<TMovieCreateFormValues> = (formData) => {
+    movieCreate(formData, setLoading);
   };
 
   return (
