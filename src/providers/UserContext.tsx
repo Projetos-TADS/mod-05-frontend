@@ -26,9 +26,13 @@ interface IUserContext {
     setLoading: React.Dispatch<React.SetStateAction<boolean>>
   ) => Promise<void>;
   userLogout: () => void;
+  userEdit: (
+    newUserData: unknown,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>
+  ) => Promise<void>;
   // isEditUserProfileModalOpen: boolean;
   // setIsEditUserProfileModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  // editUserProfile: (newUserProfileData: IRegisterUserFormData) => Promise<void>;
+  // editUserProfile: (newUserData: IRegisterUserFormData) => Promise<void>;
   // setUser: React.Dispatch<React.SetStateAction<IUser | null>>;
 }
 
@@ -106,8 +110,29 @@ export const UserProvider = ({ children }: IUserProviderProps) => {
     navigate("/");
   };
 
+  const userEdit = async (
+    newUserData: unknown,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>
+  ) => {
+    const userToken: string | null = localStorage.getItem("@USERTOKEN");
+    const userId: string | null = localStorage.getItem("@USERID");
+
+    try {
+      setLoading(true);
+
+      const { data } = await api.patch<IUser>(`/users/${userId}`, newUserData, {
+        headers: { Authorization: `Bearer ${userToken}` },
+      });
+      setUser(data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <UserContext.Provider value={{ userSignin, userSignup, userLogout, user }}>
+    <UserContext.Provider value={{ userSignin, userSignup, userLogout, userEdit, user }}>
       {children}
     </UserContext.Provider>
   );
