@@ -13,7 +13,8 @@ import { CreateNewDirectorForm } from "../../components/DirectorCreateForm";
 
 export const MoviesPage = () => {
   const { userLogout, userDelete, user } = useContext(UserContext);
-  const { moviesList, movieDelete, modalMovieEdit, setModalMovieEdit } = useContext(MovieContext);
+  const { moviesList, movieDelete, addActorToMovie, modalMovieEdit, setModalMovieEdit } =
+    useContext(MovieContext);
   const { actorsList, actorDelete, modalActorEdit, setModalActorEdit } = useContext(ActorContext);
   const { directorsList, directorDelete, modalDirectorEdit, setModalDirectorEdit } =
     useContext(DirectorContext);
@@ -52,6 +53,21 @@ export const MoviesPage = () => {
                 Editar
               </button>
               <button onClick={() => movieDelete(currentMovie.movieId)}>Deletar</button>
+              <select
+                onChange={(e) => {
+                  const selectedActorId = e.target.value;
+                  if (selectedActorId) {
+                    addActorToMovie(currentMovie.movieId, selectedActorId);
+                  }
+                }}
+              >
+                <option value="">Adicionar Ator</option>
+                {actorsList?.map((actor) => (
+                  <option key={actor.actorId} value={actor.actorId}>
+                    {actor.name}
+                  </option>
+                ))}
+              </select>
             </li>
           ))}
         </ul>
