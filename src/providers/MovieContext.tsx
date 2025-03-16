@@ -68,15 +68,15 @@ interface IMovieContext {
   ) => Promise<void>;
   movieDelete: (movieId: string) => Promise<void>;
   movieUpdate: (newMovieData: TMovieUpdateFormValues, movieId: string) => Promise<void>;
-  setmodalMovieEdit: React.Dispatch<React.SetStateAction<boolean>>;
+  setModalMovieEdit: React.Dispatch<React.SetStateAction<boolean>>;
   modalMovieEdit: boolean;
 }
 
-export const MoviesContext = createContext({} as IMovieContext);
+export const MovieContext = createContext({} as IMovieContext);
 
-export const MoviesProvider = ({ children }: IMovieProviderProps) => {
+export const MovieProvider = ({ children }: IMovieProviderProps) => {
   const [moviesList, setMovieList] = useState<IMovie[]>([]);
-  const [modalMovieEdit, setmodalMovieEdit] = useState<boolean>(false);
+  const [modalMovieEdit, setModalMovieEdit] = useState<boolean>(false);
 
   useEffect(() => {
     const moviesLoad = async () => {
@@ -168,17 +168,17 @@ export const MoviesProvider = ({ children }: IMovieProviderProps) => {
   };
 
   return (
-    <MoviesContext.Provider
+    <MovieContext.Provider
       value={{
         moviesList,
         movieCreate,
         movieDelete,
         movieUpdate,
         modalMovieEdit,
-        setmodalMovieEdit,
+        setModalMovieEdit,
       }}
     >
       {children}
-    </MoviesContext.Provider>
+    </MovieContext.Provider>
   );
 };
