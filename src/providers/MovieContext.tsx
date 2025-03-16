@@ -43,6 +43,14 @@ interface ICastModel {
   updatedAt: string;
 }
 
+interface ICastWithMovie {
+  castId: string;
+  actorId: string;
+  movieId: string;
+  addedDate: string;
+  movie: IMovie;
+}
+
 interface IDirector {
   directorId: string;
   name: string;
@@ -70,6 +78,7 @@ interface IMovieContext {
   movieUpdate: (newMovieData: TMovieUpdateFormValues, movieId: string) => Promise<void>;
   setModalMovieEdit: React.Dispatch<React.SetStateAction<boolean>>;
   modalMovieEdit: boolean;
+  addActorToMovie: (movieId: string, actorId: string) => Promise<void>;
 }
 
 export const MovieContext = createContext({} as IMovieContext);
@@ -151,7 +160,7 @@ export const MovieProvider = ({ children }: IMovieProviderProps) => {
     const userToken: string | null = localStorage.getItem("@USERTOKEN");
 
     try {
-      await api.delete(`/movies/${movieId}`, {
+      await api.delete<void>(`/movies/${movieId}`, {
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
@@ -167,6 +176,30 @@ export const MovieProvider = ({ children }: IMovieProviderProps) => {
     }
   };
 
+  const addActorToMovie = async (movieId: string, actorId: string) => {
+    const userToken: string | null = localStorage.getItem("@USERTOKEN");
+    const payload = {
+      movieId,
+      actorId,
+    };
+
+    try {
+      const { data } = await api.post<ICastWithMovie>("/cast", payload, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      const updatedMovie = moviesList.filter((currentMovie) => currentMovie.movieId !== movieId);
+
+      setMovieList([...updatedMovie, data.movie]);
+
+      console.log("Ator adicionado ao filme");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <MovieContext.Provider
       value={{
@@ -176,6 +209,7 @@ export const MovieProvider = ({ children }: IMovieProviderProps) => {
         movieUpdate,
         modalMovieEdit,
         setModalMovieEdit,
+        addActorToMovie,
       }}
     >
       {children}
