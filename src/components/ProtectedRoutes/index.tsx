@@ -1,15 +1,21 @@
 import { useContext } from "react";
 import { UserContext } from "../../providers/UserContext";
 import { Navigate, Outlet } from "react-router";
-import { MoviesProvider } from "../../providers/MoviesContext";
+import { MovieProvider } from "../../providers/MovieContext";
+import { ActorProvider } from "../../providers/ActorContext";
+import { DirectorProvider } from "../../providers/DirectorContext";
 
 export const ProtectedRoutes = () => {
   const { user } = useContext(UserContext);
 
   return user ? (
-    <MoviesProvider>
-      <Outlet />
-    </MoviesProvider>
+    <DirectorProvider>
+      <ActorProvider>
+        <MovieProvider>
+          <Outlet />
+        </MovieProvider>
+      </ActorProvider>
+    </DirectorProvider>
   ) : (
     <Navigate to="/" />
   );
