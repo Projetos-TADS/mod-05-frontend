@@ -38,6 +38,13 @@ export const SignupForm = () => {
         error={errors.email}
       />
       <Input
+        type="text"
+        placeholder="Seu CPF"
+        {...register("cpf")}
+        disabled={loading}
+        error={errors.cpf}
+      />
+      <Input
         type="password"
         placeholder="Seu password"
         {...register("password")}
