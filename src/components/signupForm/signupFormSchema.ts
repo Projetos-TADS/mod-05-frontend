@@ -12,6 +12,7 @@ export const signupFormSchema = z
       .string()
       .min(6, "Password must be at least 6 characters")
       .max(100, "Password must be less than 100 characters"),
+    cpf: z.string().min(11, "CPF is required").max(11, "CPF must be 11 characters"),
     confirmPassword: z.string().nonempty("Confirm your password"),
   })
   .refine(({ password, confirmPassword }) => password === confirmPassword, {
