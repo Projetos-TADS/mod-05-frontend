@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../providers/UserContext";
 import { MovieContext } from "../../providers/MovieContext";
 import { CreateNewMovieForm } from "../../components/MovieCreateForm";
@@ -12,7 +12,15 @@ import { DirectorUpdateForm } from "../../components/DirectorUpdateForm";
 import { CreateNewDirectorForm } from "../../components/DirectorCreateForm";
 
 export const MoviesPage = () => {
-  const { userLogout, userDelete, user } = useContext(UserContext);
+  const {
+    userLogout,
+    userDelete,
+    user,
+    favoritesLoad,
+    favoritesList,
+    addMovieToFavorite,
+    removeMovieFromFavorite,
+  } = useContext(UserContext);
   const {
     moviesList,
     movieDelete,
@@ -37,6 +45,23 @@ export const MoviesPage = () => {
     (director) => director.directorId === editingDirectorId
   );
 
+  useEffect(() => {
+    favoritesLoad();
+  }, []);
+
+  const handleRemoveFavorite = async (movieId: string) => {
+    const favorite = favoritesList?.find((fav) => fav.movieId === movieId);
+    if (favorite) {
+      await removeMovieFromFavorite(favorite.favoriteMovieId);
+      await favoritesLoad();
+    }
+  };
+
+  const handleAddFavorite = async (movieId: string) => {
+    await addMovieToFavorite(movieId);
+    await favoritesLoad();
+  };
+
   return (
     <main>
       <header>
@@ -47,12 +72,29 @@ export const MoviesPage = () => {
         <UserEditForm />
       </header>
       <section>
-        <h1>LISTA DE FILMES</h1>
+        <h1>LISTA DE FILMES:</h1>
         <ul>
           {moviesList?.map((currentMovie) => (
             <li key={currentMovie.movieId}>
-              <h3>{currentMovie.title}</h3>
-              <h4>Lista de atores</h4>
+              <h3>
+                {currentMovie.title}
+                {favoritesList?.some((fav) => fav.movieId === currentMovie.movieId) ? (
+                  <button
+                    onClick={() => handleRemoveFavorite(currentMovie.movieId)}
+                    title="Remover dos favoritos"
+                  >
+                    ⭐
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleAddFavorite(currentMovie.movieId)}
+                    title="Adicionar aos favoritos"
+                  >
+                    ✩
+                  </button>
+                )}
+              </h3>
+              <h4>Lista de atores:</h4>
               <ul>
                 {currentMovie.actors.map((currentActor) => (
                   <li key={currentActor.actorId}>
@@ -63,7 +105,7 @@ export const MoviesPage = () => {
                   </li>
                 ))}
               </ul>
-              <h4>Lista de Diretores</h4>
+              <h4>Lista de Diretores:</h4>
               <ul>
                 {currentMovie.directors.map((currentDirector) => (
                   <li key={currentDirector.directorId}>
@@ -122,11 +164,11 @@ export const MoviesPage = () => {
         </ul>
       </section>
       <section>
-        <h1>CRIAR NOVO FILME</h1>
+        <h1>CRIAR NOVO FILME:</h1>
         <CreateNewMovieForm />
       </section>
       <section>
-        <h1>EDITAR FILME</h1>
+        <h1>EDITAR FILME:</h1>
         {modalMovieEdit && editingMovie && (
           <MovieUpdateForm
             movie={editingMovie}
@@ -138,7 +180,7 @@ export const MoviesPage = () => {
         )}
       </section>
       <section>
-        <h1>LISTA DE ATORES</h1>
+        <h1>LISTA DE ATORES:</h1>
         <ul>
           {actorsList?.map((currentActor) => (
             <li key={currentActor.actorId}>
@@ -157,7 +199,7 @@ export const MoviesPage = () => {
         </ul>
       </section>
       <section>
-        <h1>EDITAR ATOR</h1>
+        <h1>EDITAR ATOR:</h1>
         {modalActorEdit && editingActor && (
           <ActorUpdateForm
             actor={editingActor}
@@ -169,11 +211,11 @@ export const MoviesPage = () => {
         )}
       </section>
       <section>
-        <h1>CRIAR NOVO ATOR</h1>
+        <h1>CRIAR NOVO ATOR:</h1>
         <CreateNewActorForm />
       </section>
       <section>
-        <h1>LISTA DE DIRETORES</h1>
+        <h1>LISTA DE DIRETORES:</h1>
         <ul>
           {directorsList?.map((currentDirector) => (
             <li key={currentDirector.directorId}>
@@ -192,7 +234,7 @@ export const MoviesPage = () => {
         </ul>
       </section>
       <section>
-        <h1>EDITAR DIRETOR</h1>
+        <h1>EDITAR DIRETOR:</h1>
         {modalDirectorEdit && editingDirector && (
           <DirectorUpdateForm
             director={editingDirector}
@@ -204,7 +246,7 @@ export const MoviesPage = () => {
         )}
       </section>
       <section>
-        <h1>CRIAR NOVO DIRETOR</h1>
+        <h1>CRIAR NOVO DIRETOR:</h1>
         <CreateNewDirectorForm />
       </section>
     </main>
