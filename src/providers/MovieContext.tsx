@@ -51,6 +51,14 @@ interface ICastWithMovie {
   movie: IMovie;
 }
 
+interface IDirectorWithMovie {
+  directorMovieId: string;
+  directorId: string;
+  movieId: string;
+  addedDate: string;
+  movie: IMovie;
+}
+
 interface IDirector {
   directorId: string;
   name: string;
@@ -79,6 +87,9 @@ interface IMovieContext {
   setModalMovieEdit: React.Dispatch<React.SetStateAction<boolean>>;
   modalMovieEdit: boolean;
   addActorToMovie: (movieId: string, actorId: string) => Promise<void>;
+  addDirectorToMovie: (movieId: string, directorId: string) => Promise<void>;
+  removeActorFromMovie: (castId: string) => Promise<void>;
+  removeDirectorFromMovie: (directorMovieId: string) => Promise<void>;
 }
 
 export const MovieContext = createContext({} as IMovieContext);
@@ -87,22 +98,22 @@ export const MovieProvider = ({ children }: IMovieProviderProps) => {
   const [moviesList, setMovieList] = useState<IMovie[]>([]);
   const [modalMovieEdit, setModalMovieEdit] = useState<boolean>(false);
 
+  const moviesLoad = async () => {
+    const userToken: string | null = localStorage.getItem("@USERTOKEN");
+
+    try {
+      const { data } = await api.get<IMovieResponse>("/movies", {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+      setMovieList(data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
-    const moviesLoad = async () => {
-      const userToken: string | null = localStorage.getItem("@USERTOKEN");
-
-      try {
-        const { data } = await api.get<IMovieResponse>("/movies", {
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-          },
-        });
-        setMovieList(data.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
     moviesLoad();
   }, []);
 
@@ -137,8 +148,6 @@ export const MovieProvider = ({ children }: IMovieProviderProps) => {
     const userToken: string | null = localStorage.getItem("@USERTOKEN");
 
     try {
-      // setLoading(true);
-
       const { data } = await api.patch<IMovie>(`/movies/${movieId}`, newMovieData, {
         headers: { Authorization: `Bearer ${userToken}` },
       });
@@ -147,12 +156,9 @@ export const MovieProvider = ({ children }: IMovieProviderProps) => {
 
       setMovieList([...updatedMovie, data]);
 
-      console.log(data);
       console.log("Movie Atualizado");
     } catch (error) {
       console.log(error);
-    } finally {
-      // setLoading(false);
     }
   };
 
@@ -184,17 +190,71 @@ export const MovieProvider = ({ children }: IMovieProviderProps) => {
     };
 
     try {
-      const { data } = await api.post<ICastWithMovie>("/cast", payload, {
+      await api.post<ICastWithMovie>("/cast", payload, {
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
       });
 
-      const updatedMovie = moviesList.filter((currentMovie) => currentMovie.movieId !== movieId);
-
-      setMovieList([...updatedMovie, data.movie]);
+      moviesLoad();
 
       console.log("Ator adicionado ao filme");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const addDirectorToMovie = async (movieId: string, directorId: string) => {
+    const userToken: string | null = localStorage.getItem("@USERTOKEN");
+    const payload = {
+      movieId,
+      directorId,
+    };
+
+    try {
+      await api.post<IDirectorWithMovie>("/directorMovie", payload, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      moviesLoad();
+
+      console.log("Diretor adicionado ao filme");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const removeActorFromMovie = async (castId: string) => {
+    const userToken: string | null = localStorage.getItem("@USERTOKEN");
+
+    try {
+      await api.delete<void>(`/cast/${castId}`, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      moviesLoad();
+      console.log("Ator removido");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const removeDirectorFromMovie = async (directorMovieId: string) => {
+    const userToken: string | null = localStorage.getItem("@USERTOKEN");
+
+    try {
+      await api.delete<void>(`/directorMovie/${directorMovieId}`, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      moviesLoad();
+      console.log("Diretor removido");
     } catch (error) {
       console.log(error);
     }
@@ -210,6 +270,9 @@ export const MovieProvider = ({ children }: IMovieProviderProps) => {
         modalMovieEdit,
         setModalMovieEdit,
         addActorToMovie,
+        addDirectorToMovie,
+        removeActorFromMovie,
+        removeDirectorFromMovie,
       }}
     >
       {children}
