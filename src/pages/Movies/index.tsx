@@ -13,8 +13,16 @@ import { CreateNewDirectorForm } from "../../components/DirectorCreateForm";
 
 export const MoviesPage = () => {
   const { userLogout, userDelete, user } = useContext(UserContext);
-  const { moviesList, movieDelete, addActorToMovie, modalMovieEdit, setModalMovieEdit } =
-    useContext(MovieContext);
+  const {
+    moviesList,
+    movieDelete,
+    addActorToMovie,
+    addDirectorToMovie,
+    removeActorFromMovie,
+    removeDirectorFromMovie,
+    modalMovieEdit,
+    setModalMovieEdit,
+  } = useContext(MovieContext);
   const { actorsList, actorDelete, modalActorEdit, setModalActorEdit } = useContext(ActorContext);
   const { directorsList, directorDelete, modalDirectorEdit, setModalDirectorEdit } =
     useContext(DirectorContext);
@@ -44,6 +52,32 @@ export const MoviesPage = () => {
           {moviesList?.map((currentMovie) => (
             <li key={currentMovie.movieId}>
               <h3>{currentMovie.title}</h3>
+              <h4>Lista de atores</h4>
+              <ul>
+                {currentMovie.actors.map((currentActor) => (
+                  <li key={currentActor.actorId}>
+                    <h3>{currentActor.name}</h3>
+                    <button onClick={() => removeActorFromMovie(currentActor.CastModel.castId)}>
+                      Deletar Ator
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <h4>Lista de Diretores</h4>
+              <ul>
+                {currentMovie.directors.map((currentDirector) => (
+                  <li key={currentDirector.directorId}>
+                    <h3>{currentDirector.name}</h3>
+                    <button
+                      onClick={() =>
+                        removeDirectorFromMovie(currentDirector.DirectorMovie.directorMovieId)
+                      }
+                    >
+                      Deletar Diretor
+                    </button>
+                  </li>
+                ))}
+              </ul>
               <button
                 onClick={() => {
                   setEditingMovieId(currentMovie.movieId);
@@ -65,6 +99,21 @@ export const MoviesPage = () => {
                 {actorsList?.map((actor) => (
                   <option key={actor.actorId} value={actor.actorId}>
                     {actor.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                onChange={(e) => {
+                  const selectedDirectorId = e.target.value;
+                  if (selectedDirectorId) {
+                    addDirectorToMovie(currentMovie.movieId, selectedDirectorId);
+                  }
+                }}
+              >
+                <option value="">Adicionar Diretor</option>
+                {directorsList?.map((director) => (
+                  <option key={director.directorId} value={director.directorId}>
+                    {director.name}
                   </option>
                 ))}
               </select>
