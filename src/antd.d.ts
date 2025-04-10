@@ -65,6 +65,8 @@ declare module "antd" {
 		value?: string;
 		name?: string;
 		ref?: React.Ref<HTMLInputElement>;
+		maxLength?: number;
+		inputMode?: string;
 	}
 
 	export interface InputNumberProps {

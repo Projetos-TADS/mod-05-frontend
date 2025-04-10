@@ -70,19 +70,43 @@ export const SignupForm = () => {
 			<Controller
 				name="cpf"
 				control={control}
-				render={({ field, fieldState }) => (
-					<Form.Item
-						label="CPF"
-						validateStatus={fieldState.error ? "error" : ""}
-						help={fieldState.error?.message}>
-						<Input
-							{...field}
-							placeholder="000.000.000-00"
-							disabled={loading}
-							status={fieldState.error ? "error" : ""}
-						/>
-					</Form.Item>
-				)}
+				render={({ field, fieldState }) => {
+					const formatCPF = (value: string) => {
+						if (!value) return "";
+
+						const nums = value.replace(/\D/g, "");
+
+						if (nums.length <= 3) return nums;
+						if (nums.length <= 6) return `${nums.slice(0, 3)}.${nums.slice(3)}`;
+						if (nums.length <= 9) return `${nums.slice(0, 3)}.${nums.slice(3, 6)}.${nums.slice(6)}`;
+						return `${nums.slice(0, 3)}.${nums.slice(3, 6)}.${nums.slice(6, 9)}-${nums.slice(
+							9,
+							11
+						)}`;
+					};
+
+					const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+						const rawValue = e.target!.value.replace(/\D/g, "");
+						field.onChange(rawValue);
+					};
+
+					return (
+						<Form.Item
+							label="CPF"
+							validateStatus={fieldState.error ? "error" : ""}
+							help={fieldState.error?.message}>
+							<Input
+								value={formatCPF(field.value)}
+								onChange={handleChange}
+								placeholder="000.000.000-00"
+								inputMode="numeric"
+								maxLength={14}
+								disabled={loading}
+								status={fieldState.error ? "error" : ""}
+							/>
+						</Form.Item>
+					);
+				}}
 			/>
 
 			<Controller
