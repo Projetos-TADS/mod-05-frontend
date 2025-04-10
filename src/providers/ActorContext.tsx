@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { api } from "../services/api";
+import { toast } from "react-toastify";
 import { TActorCreateFormValues } from "../components/ActorCreateForm/actorCreateFormSchema";
 import { TActorUpdateFormValues } from "../components/ActorUpdateForm/actorUpdateFormSchema";
 
@@ -44,8 +45,8 @@ export const ActorProvider = ({ children }: IActorProviderProps) => {
 					},
 				});
 				setActorsList(data);
-			} catch (error) {
-				console.log(error);
+			} catch (error: any) {
+				toast.error(error.response?.data?.message);
 			}
 		};
 
@@ -62,9 +63,9 @@ export const ActorProvider = ({ children }: IActorProviderProps) => {
 				},
 			});
 			setActorsList([...actorsList, data]);
-			console.log("Cadastro de ator feito");
-		} catch (error) {
-			console.log(error);
+			toast.success("Cadastro de ator feito");
+		} catch (error: any) {
+			toast.error(error.response?.data?.message);
 		}
 	};
 
@@ -80,10 +81,9 @@ export const ActorProvider = ({ children }: IActorProviderProps) => {
 
 			setActorsList([...updatedActor, data]);
 
-			console.log(data);
-			console.log("Ator Atualizado");
-		} catch (error) {
-			console.log(error);
+			toast.success("Ator Atualizado");
+		} catch (error: any) {
+			toast.error(error.response?.data?.message);
 		}
 	};
 
@@ -99,9 +99,9 @@ export const ActorProvider = ({ children }: IActorProviderProps) => {
 
 			const updatedActorList = actorsList.filter(currentActor => currentActor.actorId !== actorId);
 			setActorsList(updatedActorList);
-			console.log("Ator deletado");
-		} catch (error) {
-			console.log(error);
+			toast.success("Ator deletado");
+		} catch (error: any) {
+			toast.error(error.response?.data?.message);
 		}
 	};
 

@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { api } from "../services/api";
+import { toast } from "react-toastify";
 import { TMovieCreateFormValues } from "../components/MovieCreateForm/movieCreateFormSchema";
 import { TMovieUpdateFormValues } from "../components/MovieUpdateForm/movieupdateFormSchema";
 
@@ -117,8 +118,8 @@ export const MovieProvider = ({ children }: IMovieProviderProps) => {
 			setMovieList(data.data);
 			setMoviePagination(data);
 			setTotalItems(data.count);
-		} catch (error) {
-			console.log(error);
+		} catch (error: any) {
+			toast.error(error.response?.data?.message);
 		}
 	};
 
@@ -147,9 +148,9 @@ export const MovieProvider = ({ children }: IMovieProviderProps) => {
 			});
 			setMovieList([...moviesList, data]);
 			await moviesLoad(currentPage, itemsPerPage);
-			console.log("Cadastro de filme feito");
-		} catch (error) {
-			console.log(error);
+			toast.success("Cadastro de filme feito");
+		} catch (error: any) {
+			toast.error(error.response?.data?.message);
 		}
 	};
 
@@ -165,9 +166,9 @@ export const MovieProvider = ({ children }: IMovieProviderProps) => {
 
 			setMovieList([...updatedMovie, data]);
 
-			console.log("Movie Atualizado");
-		} catch (error) {
-			console.log(error);
+			toast.success("Filme atualizado");
+		} catch (error: any) {
+			toast.error(error.response?.data?.message);
 		}
 	};
 
@@ -183,10 +184,10 @@ export const MovieProvider = ({ children }: IMovieProviderProps) => {
 
 			const updatedMovieList = moviesList.filter(currentMovie => currentMovie.movieId !== movieId);
 			setMovieList(updatedMovieList);
-			console.log("Filmes deletado");
+			toast.success("Filme deletado");
 			await moviesLoad(currentPage, itemsPerPage);
-		} catch (error) {
-			console.log(error);
+		} catch (error: any) {
+			toast.error(error.response?.data?.message);
 		}
 	};
 
@@ -206,9 +207,9 @@ export const MovieProvider = ({ children }: IMovieProviderProps) => {
 
 			moviesLoad();
 
-			console.log("Ator adicionado ao filme");
-		} catch (error) {
-			console.log(error);
+			toast.success("Ator adicionado ao filme");
+		} catch (error: any) {
+			toast.error(error.response?.data?.message);
 		}
 	};
 
@@ -228,9 +229,9 @@ export const MovieProvider = ({ children }: IMovieProviderProps) => {
 
 			moviesLoad();
 
-			console.log("Diretor adicionado ao filme");
-		} catch (error) {
-			console.log(error);
+			toast.success("Diretor adicionado ao filme");
+		} catch (error: any) {
+			toast.error(error.response?.data?.message);
 		}
 	};
 
@@ -245,9 +246,9 @@ export const MovieProvider = ({ children }: IMovieProviderProps) => {
 			});
 
 			moviesLoad();
-			console.log("Ator removido");
-		} catch (error) {
-			console.log(error);
+			toast.success("Ator removido");
+		} catch (error: any) {
+			toast.error(error.response?.data?.message);
 		}
 	};
 
@@ -262,9 +263,9 @@ export const MovieProvider = ({ children }: IMovieProviderProps) => {
 			});
 
 			moviesLoad();
-			console.log("Diretor removido");
-		} catch (error) {
-			console.log(error);
+			toast.success("Diretor removido");
+		} catch (error: any) {
+			toast.error(error.response?.data?.message);
 		}
 	};
 

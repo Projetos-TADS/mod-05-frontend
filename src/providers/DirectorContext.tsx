@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { api } from "../services/api";
+import { toast } from "react-toastify";
 import { TDirectorCreateFormValues } from "../components/DirectorCreateForm/directorCreateFormSchema";
 import { TDirectorUpdateFormValues } from "../components/DirectorUpdateForm/directorUpdateFormSchema";
 
@@ -44,8 +45,8 @@ export const DirectorProvider = ({ children }: IDirectorProviderProps) => {
 					},
 				});
 				setDirectorsList(data);
-			} catch (error) {
-				console.log(error);
+			} catch (error: any) {
+				toast.error(error.response?.data?.message);
 			}
 		};
 
@@ -62,9 +63,9 @@ export const DirectorProvider = ({ children }: IDirectorProviderProps) => {
 				},
 			});
 			setDirectorsList([...directorsList, data]);
-			console.log("Cadastro de diretor feito");
-		} catch (error) {
-			console.log(error);
+			toast.success("Cadastro de diretor feito");
+		} catch (error: any) {
+			toast.error(error.response?.data?.message);
 		}
 	};
 
@@ -82,9 +83,9 @@ export const DirectorProvider = ({ children }: IDirectorProviderProps) => {
 
 			setDirectorsList([...updatedDirectors, data]);
 
-			console.log("Diretor Atualizado");
-		} catch (error) {
-			console.log(error);
+			toast.success("Diretor Atualizado");
+		} catch (error: any) {
+			toast.error(error.response?.data?.message);
 		}
 	};
 
@@ -102,9 +103,9 @@ export const DirectorProvider = ({ children }: IDirectorProviderProps) => {
 				currentDirector => currentDirector.directorId !== directorId
 			);
 			setDirectorsList(updatedDirectorsList);
-			console.log("Diretor deletado");
-		} catch (error) {
-			console.log(error);
+			toast.success("Diretor deletado");
+		} catch (error: any) {
+			toast.error(error.response?.data?.message);
 		}
 	};
 
