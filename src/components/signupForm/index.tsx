@@ -58,6 +58,7 @@ export const SignupForm = () => {
 						help={fieldState.error?.message}>
 						<Input
 							{...field}
+							type="email"
 							placeholder="seu@email.com"
 							disabled={loading}
 							status={fieldState.error ? "error" : ""}

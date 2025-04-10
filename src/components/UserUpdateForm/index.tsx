@@ -69,8 +69,9 @@ export const UserEditForm = ({ onSuccess }: { onSuccess: () => void }) => {
 						help={fieldState.error?.message}>
 						<Input
 							{...field}
+							type="email"
 							placeholder="Seu e-mail"
-							disabled={loading}
+							disabled
 							status={fieldState.error ? "error" : ""}
 						/>
 					</Form.Item>
