@@ -1,46 +1,76 @@
 import { useContext, useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { UserContext } from "../../providers/UserContext";
-import { Input } from "../Input";
-import { loginFormSchema, TLoginFormValues } from "./loginFormSchema";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Button, Form, Input, Alert } from "antd";
+import { UserContext } from "../../providers/UserContext";
+import { loginFormSchema, TLoginFormValues } from "./loginFormSchema";
 
 export const LoginForm = () => {
-  const { userSignin } = useContext(UserContext);
-  const [loading, setLoading] = useState(false);
+	const { userSignin } = useContext(UserContext);
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<TLoginFormValues>({
-    resolver: zodResolver(loginFormSchema),
-  });
+	const { control, handleSubmit } = useForm<TLoginFormValues>({
+		resolver: zodResolver(loginFormSchema),
+	});
 
-  const submit: SubmitHandler<TLoginFormValues> = (formData) => {
-    userSignin(formData, setLoading);
-  };
+	const onSubmit = async (data: TLoginFormValues) => {
+		try {
+			setLoading(true);
+			await userSignin(data, setLoading);
+		} catch (err) {
+			setError("Credenciais inválidas");
+		} finally {
+			setLoading(false);
+		}
+	};
 
-  return (
-    <form onSubmit={handleSubmit(submit)}>
-      <Input
-        type="email"
-        placeholder="Seu email"
-        {...register("email")}
-        disabled={loading}
-        error={errors.email}
-      />
+	return (
+		<Form layout="vertical" onFinish={handleSubmit(onSubmit)} style={{ maxWidth: "100%" }}>
+			{error && <Alert message={error} type="error" showIcon={true} style={{ marginBottom: 24 }} />}
 
-      <Input
-        type="password"
-        placeholder="Seu password"
-        {...register("password")}
-        disabled={loading}
-        error={errors.password}
-      />
-      <button type="submit" disabled={loading}>
-        {loading ? "Entrando..." : "Entrar"}
-      </button>
-    </form>
-  );
+			<Controller
+				name="email"
+				control={control}
+				render={({ field, fieldState }) => (
+					<Form.Item
+						label="Email"
+						validateStatus={fieldState.error ? "error" : ""}
+						help={fieldState.error?.message}>
+						<Input
+							{...field}
+							status={fieldState.error ? "error" : ""}
+							placeholder="seu@email.com"
+							disabled={loading}
+						/>
+					</Form.Item>
+				)}
+			/>
+
+			<Controller
+				name="password"
+				control={control}
+				render={({ field, fieldState }) => (
+					<Form.Item
+						label="Senha"
+						validateStatus={fieldState.error ? "error" : ""}
+						help={fieldState.error?.message}>
+						<Input
+							type="password"
+							{...field}
+							status={fieldState.error ? "error" : ""}
+							placeholder="Sua senha"
+							disabled={loading}
+						/>
+					</Form.Item>
+				)}
+			/>
+
+			<Form.Item>
+				<Button type="primary" htmlType="submit" loading={loading} block={true} size="large">
+					{loading ? "Entrando..." : "Entrar"}
+				</Button>
+			</Form.Item>
+		</Form>
+	);
 };
