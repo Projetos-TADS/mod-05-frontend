@@ -1,76 +1,153 @@
-import { SubmitHandler, useForm } from "react-hook-form";
-import { Input } from "../Input";
-import { movieCreateFormSchema, TMovieCreateFormValues } from "./movieCreateFormSchema";
-import { useContext, useState } from "react";
-import { MovieContext } from "../../providers/MovieContext";
+import { useContext } from "react";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Button, Form, Input, InputNumber, Modal } from "antd";
+import TextArea from "antd/es/input/TextArea";
+import { MovieContext } from "../../providers/MovieContext";
+import { movieCreateFormSchema, TMovieCreateFormValues } from "./movieCreateFormSchema";
 
-export const CreateNewMovieForm = () => {
-  const [loading, setLoading] = useState(false);
-  const { movieCreate } = useContext(MovieContext);
+interface CreateNewMovieFormProps {
+	open: boolean;
+	onClose: () => void;
+}
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<TMovieCreateFormValues>({
-    resolver: zodResolver(movieCreateFormSchema),
-  });
+export const CreateNewMovieForm = ({ open, onClose }: CreateNewMovieFormProps) => {
+	const { movieCreate } = useContext(MovieContext);
 
-  const submit: SubmitHandler<TMovieCreateFormValues> = (formData) => {
-    movieCreate(formData, setLoading);
-  };
+	const {
+		control,
+		handleSubmit,
+		formState: { errors, isSubmitting },
+		reset,
+	} = useForm<TMovieCreateFormValues>({
+		resolver: zodResolver(movieCreateFormSchema),
+	});
 
-  return (
-    <form onSubmit={handleSubmit(submit)}>
-      <Input
-        type="text"
-        {...register("title")}
-        placeholder="Título do filme"
-        disabled={loading}
-        error={errors.title}
-      />
-      <Input
-        type="text"
-        {...register("description")}
-        placeholder="Descrição do filme"
-        disabled={loading}
-        error={errors.description}
-      />
-      <Input
-        type="number"
-        {...register("releaseYear")}
-        placeholder="Ano de lançamento do filme"
-        disabled={loading}
-        error={errors.releaseYear}
-      />
-      <Input
-        type="number"
-        {...register("duration")}
-        placeholder="Duração do filme"
-        disabled={loading}
-        error={errors.duration}
-      />
-      <Input
-        type="number"
-        min="0"
-        max="5"
-        step="0.1"
-        {...register("rating")}
-        placeholder="Avaliação do filme"
-        disabled={loading}
-        error={errors.rating}
-      />
-      <Input
-        type="text"
-        {...register("urlImage")}
-        placeholder="URL da imagem do filme"
-        disabled={loading}
-        error={errors.urlImage}
-      />
-      <button type="submit" disabled={loading}>
-        {loading ? "Cadastrando..." : "Cadastrar"}
-      </button>
-    </form>
-  );
+	const submit: SubmitHandler<TMovieCreateFormValues> = async formData => {
+		await movieCreate(formData);
+		reset();
+		onClose();
+	};
+
+	return (
+		<Modal
+			title="Criar Novo Filme"
+			open={open}
+			onCancel={onClose}
+			footer={null}
+			destroyOnClose
+			width={800}>
+			<Form layout="vertical" onFinish={handleSubmit(submit)}>
+				<Controller
+					name="title"
+					control={control}
+					render={({ field }) => (
+						<Form.Item
+							label="Título"
+							validateStatus={errors.title ? "error" : ""}
+							help={errors.title?.message}>
+							<Input {...field} placeholder="Título do filme" disabled={isSubmitting} />
+						</Form.Item>
+					)}
+				/>
+
+				<Controller
+					name="description"
+					control={control}
+					render={({ field }) => (
+						<Form.Item
+							label="Descrição"
+							validateStatus={errors.description ? "error" : ""}
+							help={errors.description?.message}>
+							<TextArea
+								{...field}
+								rows={4}
+								placeholder="Descrição do filme"
+								disabled={isSubmitting}
+							/>
+						</Form.Item>
+					)}
+				/>
+
+				<Controller
+					name="releaseYear"
+					control={control}
+					render={({ field }) => (
+						<Form.Item
+							label="Ano de Lançamento"
+							validateStatus={errors.releaseYear ? "error" : ""}
+							help={errors.releaseYear?.message}>
+							<InputNumber
+								{...field}
+								min={1900}
+								max={new Date().getFullYear()}
+								style={{ width: "100%" }}
+								disabled={isSubmitting}
+								onChange={(value: number) => field.onChange(value)}
+							/>
+						</Form.Item>
+					)}
+				/>
+
+				<Controller
+					name="duration"
+					control={control}
+					render={({ field }) => (
+						<Form.Item
+							label="Duração (minutos)"
+							validateStatus={errors.duration ? "error" : ""}
+							help={errors.duration?.message}>
+							<InputNumber
+								{...field}
+								min={1}
+								style={{ width: "100%" }}
+								disabled={isSubmitting}
+								onChange={(value: number) => field.onChange(value)}
+							/>
+						</Form.Item>
+					)}
+				/>
+
+				<Controller
+					name="rating"
+					control={control}
+					render={({ field }) => (
+						<Form.Item
+							label="Avaliação (0-5)"
+							validateStatus={errors.rating ? "error" : ""}
+							help={errors.rating?.message}>
+							<InputNumber
+								{...field}
+								min={0}
+								max={5}
+								step={0.1}
+								style={{ width: "100%" }}
+								disabled={isSubmitting}
+								onChange={(value: number) => field.onChange(value)}
+							/>
+						</Form.Item>
+					)}
+				/>
+
+				<Controller
+					name="urlImage"
+					control={control}
+					render={({ field }) => (
+						<Form.Item
+							label="URL da Imagem"
+							validateStatus={errors.urlImage ? "error" : ""}
+							help={errors.urlImage?.message}>
+							<Input {...field} placeholder="URL da imagem do filme" disabled={isSubmitting} />
+						</Form.Item>
+					)}
+				/>
+
+				<Form.Item>
+					<Button type="primary" htmlType="submit" loading={isSubmitting} block>
+						Cadastrar Filme
+					</Button>
+				</Form.Item>
+			</Form>
+		</Modal>
+	);
 };
