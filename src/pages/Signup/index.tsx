@@ -1,12 +1,23 @@
-import { Link } from "react-router";
-import { SignupForm } from "../../components/SignupForm";
+import { useNavigate } from "react-router";
+import { Button } from "antd";
+import Title from "antd/es/typography/Title";
+import { SignupForm } from "../../components/signupForm";
 
 export const SignupPage = () => {
-  return (
-    <>
-      <h1>Rota de cadastro</h1>
-      <SignupForm />
-      <Link to="/">Voltar</Link>
-    </>
-  );
+	const navigate = useNavigate();
+
+	return (
+		<section style={{ margin: "4rem auto", minWidth: "16rem", maxWidth: "30%" }}>
+			<Title>Cadastro</Title>
+			<SignupForm />
+			<Button
+				type="default"
+				htmlType="button"
+				size="large"
+				block={true}
+				onClick={() => navigate("/")}>
+				Voltar para login
+			</Button>
+		</section>
+	);
 };
