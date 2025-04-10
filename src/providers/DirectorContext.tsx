@@ -4,137 +4,119 @@ import { TDirectorCreateFormValues } from "../components/DirectorCreateForm/dire
 import { TDirectorUpdateFormValues } from "../components/DirectorUpdateForm/directorUpdateFormSchema";
 
 interface IDirectorProviderProps {
-  children: React.ReactNode;
+	children: React.ReactNode;
 }
 
 export interface IDirector {
-  directorId: string;
-  name: string;
-  birthDate: string;
-  nationality: string;
+	directorId: string;
+	name: string;
+	birthDate: string;
+	nationality: string;
 }
 
 interface IDirectorResponse {
-  directorId: string;
-  name: string;
-  birthDate: string;
-  nationality: string;
+	directorId: string;
+	name: string;
+	birthDate: string;
+	nationality: string;
 }
 
 interface IDirectorContext {
-  directorsList: IDirector[] | null;
-  directorCreate: (
-    formData: TDirectorCreateFormValues,
-    setLoading: React.Dispatch<React.SetStateAction<boolean>>
-  ) => Promise<void>;
-  directorDelete: (directorId: string) => Promise<void>;
-  directorUpdate: (newDirectorData: TDirectorUpdateFormValues, directorId: string) => Promise<void>;
-  setModalDirectorEdit: React.Dispatch<React.SetStateAction<boolean>>;
-  modalDirectorEdit: boolean;
+	directorsList: IDirector[] | null;
+	directorCreate: (formData: TDirectorCreateFormValues) => Promise<void>;
+	directorDelete: (directorId: string) => Promise<void>;
+	directorUpdate: (newDirectorData: TDirectorUpdateFormValues, directorId: string) => Promise<void>;
 }
 
 export const DirectorContext = createContext({} as IDirectorContext);
 
 export const DirectorProvider = ({ children }: IDirectorProviderProps) => {
-  const [directorsList, setDirectorsList] = useState<IDirector[]>([]);
-  const [modalDirectorEdit, setModalDirectorEdit] = useState<boolean>(false);
+	const [directorsList, setDirectorsList] = useState<IDirector[]>([]);
 
-  useEffect(() => {
-    const directorsLoad = async () => {
-      const userToken: string | null = localStorage.getItem("@USERTOKEN");
+	useEffect(() => {
+		const directorsLoad = async () => {
+			const userToken: string | null = localStorage.getItem("@USERTOKEN");
 
-      try {
-        const { data } = await api.get<IDirectorResponse[]>("/directors", {
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-          },
-        });
-        setDirectorsList(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
+			try {
+				const { data } = await api.get<IDirectorResponse[]>("/directors", {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				});
+				setDirectorsList(data);
+			} catch (error) {
+				console.log(error);
+			}
+		};
 
-    directorsLoad();
-  }, []);
+		directorsLoad();
+	}, []);
 
-  const directorCreate = async (
-    formData: TDirectorCreateFormValues,
-    setLoading: React.Dispatch<React.SetStateAction<boolean>>
-  ) => {
-    const userToken: string | null = localStorage.getItem("@USERTOKEN");
+	const directorCreate = async (formData: TDirectorCreateFormValues) => {
+		const userToken: string | null = localStorage.getItem("@USERTOKEN");
 
-    try {
-      const { data } = await api.post<IDirector>("/directors", formData, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      });
-      setDirectorsList([...directorsList, data]);
-      console.log("Cadastro de diretor feito");
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+		try {
+			const { data } = await api.post<IDirector>("/directors", formData, {
+				headers: {
+					Authorization: `Bearer ${userToken}`,
+				},
+			});
+			setDirectorsList([...directorsList, data]);
+			console.log("Cadastro de diretor feito");
+		} catch (error) {
+			console.log(error);
+		}
+	};
 
-  const directorUpdate = async (newDirectorData: TDirectorUpdateFormValues, directorId: string) => {
-    const userToken: string | null = localStorage.getItem("@USERTOKEN");
+	const directorUpdate = async (newDirectorData: TDirectorUpdateFormValues, directorId: string) => {
+		const userToken: string | null = localStorage.getItem("@USERTOKEN");
 
-    try {
-      // setLoading(true);
+		try {
+			const { data } = await api.patch<IDirector>(`/directors/${directorId}`, newDirectorData, {
+				headers: { Authorization: `Bearer ${userToken}` },
+			});
 
-      const { data } = await api.patch<IDirector>(`/directors/${directorId}`, newDirectorData, {
-        headers: { Authorization: `Bearer ${userToken}` },
-      });
+			const updatedDirectors = directorsList.filter(
+				currentDirector => currentDirector.directorId !== directorId
+			);
 
-      const updatedDirectors = directorsList.filter(
-        (currentDirector) => currentDirector.directorId !== directorId
-      );
+			setDirectorsList([...updatedDirectors, data]);
 
-      setDirectorsList([...updatedDirectors, data]);
+			console.log("Diretor Atualizado");
+		} catch (error) {
+			console.log(error);
+		}
+	};
 
-      console.log("Diretor Atualizado");
-    } catch (error) {
-      console.log(error);
-    } finally {
-      // setLoading(false);
-    }
-  };
+	const directorDelete = async (directorId: string) => {
+		const userToken: string | null = localStorage.getItem("@USERTOKEN");
 
-  const directorDelete = async (directorId: string) => {
-    const userToken: string | null = localStorage.getItem("@USERTOKEN");
+		try {
+			await api.delete(`/directors/${directorId}`, {
+				headers: {
+					Authorization: `Bearer ${userToken}`,
+				},
+			});
 
-    try {
-      await api.delete(`/directors/${directorId}`, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      });
+			const updatedDirectorsList = directorsList.filter(
+				currentDirector => currentDirector.directorId !== directorId
+			);
+			setDirectorsList(updatedDirectorsList);
+			console.log("Diretor deletado");
+		} catch (error) {
+			console.log(error);
+		}
+	};
 
-      const updatedDirectorsList = directorsList.filter(
-        (currentDirector) => currentDirector.directorId !== directorId
-      );
-      setDirectorsList(updatedDirectorsList);
-      console.log("Diretor deletado");
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  return (
-    <DirectorContext.Provider
-      value={{
-        directorsList,
-        directorCreate,
-        directorDelete,
-        directorUpdate,
-        setModalDirectorEdit,
-        modalDirectorEdit,
-      }}
-    >
-      {children}
-    </DirectorContext.Provider>
-  );
+	return (
+		<DirectorContext.Provider
+			value={{
+				directorsList,
+				directorCreate,
+				directorDelete,
+				directorUpdate,
+			}}>
+			{children}
+		</DirectorContext.Provider>
+	);
 };
