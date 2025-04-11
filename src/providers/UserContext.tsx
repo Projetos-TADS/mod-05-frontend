@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { api } from "../services/api";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { TSignupFormValues } from "../components/SignupForm/signupFormSchema";
 import { TLoginFormValues } from "../components/SigninForm/loginFormSchema";
@@ -68,7 +68,6 @@ export const UserProvider = ({ children }: IUserProviderProps) => {
 	const [loading, setLoading] = useState(true);
 	const [favoritesList, setFavoritesList] = useState<IFavorite[]>([]);
 	const navigate = useNavigate();
-	const location = useLocation();
 
 	const favoritesLoad = async () => {
 		const userToken: string | null = localStorage.getItem("@USERTOKEN");
@@ -89,24 +88,21 @@ export const UserProvider = ({ children }: IUserProviderProps) => {
 	useEffect(() => {
 		const userToken: string | null = localStorage.getItem("@USERTOKEN");
 		const userId: string | null = localStorage.getItem("@USERID");
-		const publicRoutes = ["/", "/signup"];
 
 		const userAutoLogin = async () => {
-			if (!publicRoutes.includes(location.pathname)) {
-				try {
-					const { data } = await api.get<IUser>(`/users/${userId}`, {
-						headers: {
-							Authorization: `Bearer ${userToken}`,
-						},
-					});
-					setUser(data);
-				} catch (error: any) {
-					toast.error(error.response?.data?.message);
-					localStorage.removeItem("@USERTOKEN");
-					localStorage.removeItem("@USERID");
-				} finally {
-					setLoading(false);
-				}
+			try {
+				const { data } = await api.get<IUser>(`/users/${userId}`, {
+					headers: {
+						Authorization: `Bearer ${userToken}`,
+					},
+				});
+				setUser(data);
+			} catch (error: any) {
+				toast.error(error.response?.data?.message);
+				localStorage.removeItem("@USERTOKEN");
+				localStorage.removeItem("@USERID");
+			} finally {
+				setLoading(false);
 			}
 		};
 
