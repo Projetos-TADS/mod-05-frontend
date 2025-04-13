@@ -5,115 +5,120 @@ import { TActorCreateFormValues } from "../components/ActorCreateForm/actorCreat
 import { TActorUpdateFormValues } from "../components/ActorUpdateForm/actorUpdateFormSchema";
 
 interface IActorProviderProps {
-	children: React.ReactNode;
+  children: React.ReactNode;
 }
 
 export interface IActor {
-	actorId: string;
-	name: string;
-	birthDate: string;
-	nationality: string;
+  actorId: string;
+  name: string;
+  birthDate: string;
+  nationality: string;
 }
 
 interface IActorResponse {
-	actorId: string;
-	name: string;
-	birthDate: string;
-	nationality: string;
+  prevPage: string | null;
+  nextPage: string | null;
+  count: number;
+  data: IActor[];
 }
 
 interface IActorContext {
-	actorsList: IActor[] | null;
-	actorCreate: (formData: TActorCreateFormValues) => Promise<void>;
-	actorDelete: (actorId: string) => Promise<void>;
-	actorUpdate: (newActorData: TActorUpdateFormValues, actorId: string) => Promise<void>;
+  actorsList: IActorResponse | null;
+  actorCreate: (formData: TActorCreateFormValues) => Promise<void>;
+  actorDelete: (actorId: string) => Promise<void>;
+  actorUpdate: (newActorData: TActorUpdateFormValues, actorId: string) => Promise<void>;
 }
 
 export const ActorContext = createContext({} as IActorContext);
 
 export const ActorProvider = ({ children }: IActorProviderProps) => {
-	const [actorsList, setActorsList] = useState<IActor[]>([]);
+  const [actorsList, setActorsList] = useState<IActorResponse | null>(null);
 
-	useEffect(() => {
-		const actorsLoad = async () => {
-			const userToken: string | null = localStorage.getItem("@USERTOKEN");
+  useEffect(() => {
+    const actorsLoad = async () => {
+      const userToken: string | null = localStorage.getItem("@USERTOKEN");
 
-			try {
-				const { data } = await api.get<IActorResponse[]>("/actors", {
-					headers: {
-						Authorization: `Bearer ${userToken}`,
-					},
-				});
-				setActorsList(data);
-			} catch (error: any) {
-				toast.error(error.response?.data?.message);
-			}
-		};
+      try {
+        const { data } = await api.get<IActorResponse>("/actors", {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        });
+        setActorsList(data);
+      } catch (error: any) {
+        toast.error(error.response?.data?.message);
+      }
+    };
 
-		actorsLoad();
-	}, []);
+    actorsLoad();
+  }, []);
 
-	const actorCreate = async (formData: TActorCreateFormValues) => {
-		const userToken: string | null = localStorage.getItem("@USERTOKEN");
+  const actorCreate = async (formData: TActorCreateFormValues) => {
+    const userToken: string | null = localStorage.getItem("@USERTOKEN");
 
-		try {
-			const { data } = await api.post<IActor>("/actors", formData, {
-				headers: {
-					Authorization: `Bearer ${userToken}`,
-				},
-			});
-			setActorsList([...actorsList, data]);
-			toast.success("Cadastro de ator feito");
-		} catch (error: any) {
-			toast.error(error.response?.data?.message);
-		}
-	};
+    try {
+      const { data } = await api.post<IActor>("/actors", formData, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+      setActorsList([...actorsList, data]);
+      toast.success("Cadastro de ator feito");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message);
+    }
+  };
 
-	const actorUpdate = async (newActorData: TActorUpdateFormValues, actorId: string) => {
-		const userToken: string | null = localStorage.getItem("@USERTOKEN");
+  const actorUpdate = async (newActorData: TActorUpdateFormValues, actorId: string) => {
+    const userToken: string | null = localStorage.getItem("@USERTOKEN");
 
-		try {
-			const { data } = await api.patch<IActor>(`/actors/${actorId}`, newActorData, {
-				headers: { Authorization: `Bearer ${userToken}` },
-			});
+    try {
+      const { data } = await api.patch<IActor>(`/actors/${actorId}`, newActorData, {
+        headers: { Authorization: `Bearer ${userToken}` },
+      });
 
-			const updatedActor = actorsList.filter(currentActor => currentActor.actorId !== actorId);
+      const updatedActor = actorsList.data.filter(
+        (currentActor) => currentActor.actorId !== actorId
+      );
 
-			setActorsList([...updatedActor, data]);
+      setActorsList([...updatedActor, data]);
 
-			toast.success("Ator Atualizado");
-		} catch (error: any) {
-			toast.error(error.response?.data?.message);
-		}
-	};
+      toast.success("Ator Atualizado");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message);
+    }
+  };
 
-	const actorDelete = async (actorId: string) => {
-		const userToken: string | null = localStorage.getItem("@USERTOKEN");
+  const actorDelete = async (actorId: string) => {
+    const userToken: string | null = localStorage.getItem("@USERTOKEN");
 
-		try {
-			await api.delete(`/actors/${actorId}`, {
-				headers: {
-					Authorization: `Bearer ${userToken}`,
-				},
-			});
+    try {
+      await api.delete(`/actors/${actorId}`, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
 
-			const updatedActorList = actorsList.filter(currentActor => currentActor.actorId !== actorId);
-			setActorsList(updatedActorList);
-			toast.success("Ator deletado");
-		} catch (error: any) {
-			toast.error(error.response?.data?.message);
-		}
-	};
+      const updatedActorList = actorsList.data.filter(
+        (currentActor) => currentActor.actorId !== actorId
+      );
+      setActorsList(updatedActorList);
+      toast.success("Ator deletado");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message);
+    }
+  };
 
-	return (
-		<ActorContext.Provider
-			value={{
-				actorsList,
-				actorCreate,
-				actorDelete,
-				actorUpdate,
-			}}>
-			{children}
-		</ActorContext.Provider>
-	);
+  return (
+    <ActorContext.Provider
+      value={{
+        actorsList,
+        actorCreate,
+        actorDelete,
+        actorUpdate,
+      }}
+    >
+      {children}
+    </ActorContext.Provider>
+  );
 };
